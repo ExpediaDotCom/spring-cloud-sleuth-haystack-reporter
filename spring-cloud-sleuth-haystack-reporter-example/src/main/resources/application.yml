@@ -10,9 +10,11 @@ spring:
       enabled: true
       client:
         grpc:
-          host: haystack-agent
-          port: 35000
+          host: localhost
+          port: 34000
+    sampler:
+      probability: 1.0
+
 
 
 logging.level.org.springframework.web: info
-spring.sleuth.sampler.probability: 1.0

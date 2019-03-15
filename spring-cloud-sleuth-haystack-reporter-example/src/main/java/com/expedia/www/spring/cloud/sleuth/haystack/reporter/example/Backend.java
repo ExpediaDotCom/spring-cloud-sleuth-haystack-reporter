@@ -16,46 +16,42 @@
  */
 package com.expedia.www.spring.cloud.sleuth.haystack.reporter.example;
 
+import brave.Tracer;
 import brave.sampler.Sampler;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.cloud.sleuth.autoconfig.TraceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-public class SpringSleuthApplication {
+import java.util.Calendar;
 
-	@Autowired
-	static Sampler sampler;
+@SpringBootApplication
+@RestController
+public class Backend {
 
-	public static void main(String[] args) {
-		Logger logger = LoggerFactory.getLogger(SpringSleuthApplication.class);
-		logger.error("sampler: " + sampler);
-		logger.error("Heelllo Sotring");
+    private final static Logger logger = LoggerFactory.getLogger(Backend.class);
 
-		String name = args.length > 0 ? args[0].toLowerCase() : "";
-		Class application;
-		int port;
+    @Autowired
+    Tracer tracer;
 
-		if (name.equalsIgnoreCase("frontend")) {
-			application = Frontend.class;
-			port = 9090;
-		}
-		else {
-			name = "backend";
-			application = Backend.class;
-			port = 9091;
-		}
+    @Autowired
+    Sampler sampler;
 
-		SpringApplication.run(Backend.class,
-				"--spring.application.name=" + name,
-				"--server.port=" + port
-		);
-	}
+    @GetMapping("/api/hello")
+    public String sayHello() throws InterruptedException {
+        logger.info("tracer: " + tracer);
+        logger.info("span: " + tracer.currentSpan());
+        logger.info("span: " + sampler);
+
+        return "Hello, It's " + Calendar.getInstance().getTime().toString();
+    }
 }

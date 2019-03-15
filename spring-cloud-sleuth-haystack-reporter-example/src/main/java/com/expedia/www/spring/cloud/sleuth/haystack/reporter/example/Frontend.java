@@ -16,46 +16,43 @@
  */
 package com.expedia.www.spring.cloud.sleuth.haystack.reporter.example;
 
-import brave.sampler.Sampler;
-
+import brave.Tracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-public class SpringSleuthApplication {
+@EnableAutoConfiguration
+@RestController
+public class Frontend {
+    private final static Logger logger = LoggerFactory.getLogger(Frontend.class);
 
-	@Autowired
-	static Sampler sampler;
+    @Value("${backend.url:http://localhost:9091}")
+    private String backendBaseUrl;
 
-	public static void main(String[] args) {
-		Logger logger = LoggerFactory.getLogger(SpringSleuthApplication.class);
-		logger.error("sampler: " + sampler);
-		logger.error("Heelllo Sotring");
+    @Autowired
+    Tracer tracer;
 
-		String name = args.length > 0 ? args[0].toLowerCase() : "";
-		Class application;
-		int port;
+    @Autowired
+    private RestTemplate restTemplate;
 
-		if (name.equalsIgnoreCase("frontend")) {
-			application = Frontend.class;
-			port = 9090;
-		}
-		else {
-			name = "backend";
-			application = Backend.class;
-			port = 9091;
-		}
+    @RequestMapping("/hello")
+    public String callBackend() {
+        logger.info("tracer: " + tracer);
+        logger.info("active span: " + tracer.currentSpan());
+        logger.info("Hello Sleuth");
+        return restTemplate.getForObject(backendBaseUrl + "/api/hello", String.class);
+    }
 
-		SpringApplication.run(Backend.class,
-				"--spring.application.name=" + name,
-				"--server.port=" + port
-		);
-	}
+    @Bean
+    @ConditionalOnMissingBean
+    RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
 }

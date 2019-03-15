@@ -5,7 +5,7 @@ Table of Contents
 =================
 
 * [Table of Contents](#table-of-contents)
-   * [Instrumenting Spring Boot or Spring Web applications](#instrumenting-spring-boot-or-spring-web-applications)
+   * [Configuring spring sleuth applications to report to haystack](#configuring-spring-sleuth-applications-to-report-to-haystack)
    * [Quick Start](#quick-start)
       * [Spring Boot or Spring Web dependency](#spring-boot-or-spring-web-dependency)
       * [Spring Application dependency](#spring-application-dependency)
