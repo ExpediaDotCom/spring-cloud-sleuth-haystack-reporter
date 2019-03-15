@@ -48,7 +48,6 @@ public class HaystackReporter implements Reporter<Span> {
     public void report(Span span) {
         com.expedia.open.tracing.Span haystackOpenTracingSpan = convertZipKinSpanToHaystackSpan(span);
         clients.forEach(c -> c.send(haystackOpenTracingSpan));
-        logger.info("Heelo Sleuth");
     }
 
     private com.expedia.open.tracing.Span convertZipKinSpanToHaystackSpan(Span span) {

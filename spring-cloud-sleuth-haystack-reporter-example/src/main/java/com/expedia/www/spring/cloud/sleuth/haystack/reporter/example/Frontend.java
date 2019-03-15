@@ -22,13 +22,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-@EnableAutoConfiguration
+@SpringBootApplication
 @RestController
 public class Frontend {
     private final static Logger logger = LoggerFactory.getLogger(Frontend.class);
@@ -46,13 +47,6 @@ public class Frontend {
     public String callBackend() {
         logger.info("tracer: " + tracer);
         logger.info("active span: " + tracer.currentSpan());
-        logger.info("Hello Sleuth");
         return restTemplate.getForObject(backendBaseUrl + "/api/hello", String.class);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    RestTemplate restTemplate() {
-        return new RestTemplate();
     }
 }

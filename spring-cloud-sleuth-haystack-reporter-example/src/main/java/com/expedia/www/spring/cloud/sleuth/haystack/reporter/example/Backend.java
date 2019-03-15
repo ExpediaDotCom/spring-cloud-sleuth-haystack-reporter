@@ -43,15 +43,10 @@ public class Backend {
     @Autowired
     Tracer tracer;
 
-    @Autowired
-    Sampler sampler;
-
     @GetMapping("/api/hello")
     public String sayHello() throws InterruptedException {
         logger.info("tracer: " + tracer);
-        logger.info("span: " + tracer.currentSpan());
-        logger.info("span: " + sampler);
-
+        logger.info("active span: " + tracer.currentSpan());
         return "Hello, It's " + Calendar.getInstance().getTime().toString();
     }
 }

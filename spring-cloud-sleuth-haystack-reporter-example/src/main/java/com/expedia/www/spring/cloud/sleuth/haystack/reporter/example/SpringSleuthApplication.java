@@ -22,23 +22,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+@Configuration
 public class SpringSleuthApplication {
 
-	@Autowired
-	static Sampler sampler;
+	@Bean
+	Sampler sampler() {
+		return Sampler.ALWAYS_SAMPLE;
+	}
+
+	@Bean
+	RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
 
 	public static void main(String[] args) {
-		Logger logger = LoggerFactory.getLogger(SpringSleuthApplication.class);
-		logger.error("sampler: " + sampler);
-		logger.error("Heelllo Sotring");
-
 		String name = args.length > 0 ? args[0].toLowerCase() : "";
 		Class application;
 		int port;
@@ -53,7 +60,7 @@ public class SpringSleuthApplication {
 			port = 9091;
 		}
 
-		SpringApplication.run(Backend.class,
+		SpringApplication.run(application,
 				"--spring.application.name=" + name,
 				"--server.port=" + port
 		);
