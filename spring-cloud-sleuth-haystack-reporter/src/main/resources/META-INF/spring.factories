@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.expedia.www.spring.cloud.sleuth.haystack.repoter.configuration.HaystackReporterAutoConfiguration
+

@@ -1,0 +1,18 @@
+server:
+  port: 3379
+
+spring:
+  application:
+    name: spring-sleuth-haystack
+  sleuth:
+    enabled: true
+    haystack:
+      enabled: true
+      client:
+        grpc:
+          host: haystack-agent
+          port: 35000
+
+
+logging.level.org.springframework.web: info
+spring.sleuth.sampler.probability: 1.0
