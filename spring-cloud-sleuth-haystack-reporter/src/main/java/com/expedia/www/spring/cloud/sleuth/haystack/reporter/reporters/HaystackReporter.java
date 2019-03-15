@@ -153,7 +153,7 @@ public class HaystackReporter implements Reporter<Span> {
         }
 
         if (span.remoteEndpoint() != null) {
-            tagList.add(buildTag("remoteEndpoint", "${span.remoteEndpoint()}"));
+            tagList.add(buildTag("remoteEndpoint", span.remoteEndpoint().toString()));
         }
 
         return tagList;
