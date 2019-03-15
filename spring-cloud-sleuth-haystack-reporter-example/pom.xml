@@ -7,7 +7,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>haystack-spring-cloud-sleuth-example</artifactId>
+    <artifactId>spring-cloud-sleuth-haystack-reporter-example</artifactId>
     <packaging>jar</packaging>
 
     <properties>
