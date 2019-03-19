@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static zipkin2.Span.Kind.CLIENT;
+
 public class HaystackReporter implements Reporter<Span> {
 
     private final static Logger logger = LoggerFactory.getLogger(HaystackReporter.class);
@@ -156,6 +158,12 @@ public class HaystackReporter implements Reporter<Span> {
             tagList.add(buildTag("remoteEndpoint", span.remoteEndpoint().toString()));
         }
 
+        if (CLIENT.equals(span.kind())) {
+            tagList.add(buildTag("kind", "client"));
+        } else {
+            tagList.add(buildTag("kind", "server"));
+        }
+
         return tagList;
     }
 
@@ -193,7 +201,7 @@ public class HaystackReporter implements Reporter<Span> {
         if (span.parentId() == null) {
             return "";
         }
-        return span.parentId();
+        return new UUID(0, HexCodec.lowerHexToUnsignedLong(span.parentId())).toString();
     }
 
     private String getSpanName(Span span) {
