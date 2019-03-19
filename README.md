@@ -139,7 +139,7 @@ spring:
 
 #### Customizing Sleuth
 
-Sleuth's can be customised using properties as shown below. For more configuration options please refer [Spring Sleuth](https://github.com/spring-cloud/spring-cloud-sleuth).
+Sleuth can be customised using properties as shown below. For more configuration options please refer [Spring Sleuth](https://github.com/spring-cloud/spring-cloud-sleuth).
 
 ```yaml
 spring:
