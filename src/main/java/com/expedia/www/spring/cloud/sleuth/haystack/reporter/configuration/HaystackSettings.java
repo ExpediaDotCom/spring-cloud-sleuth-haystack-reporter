@@ -52,8 +52,8 @@ public class HaystackSettings {
     }
     
     public static class GrpcConfiguration {
-        private String host;
-        private int port;
+        private String host = "localhost";
+        private int port = 34000;
 
         public String getHost() {
             return host;
