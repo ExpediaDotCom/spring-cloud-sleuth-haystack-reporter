@@ -1,14 +1,14 @@
-[![Build Status](https://travis-ci.org/ExpediaDotCom/opentracing-spring-haystack-starter.svg?branch=master)](https://travis-ci.org/ExpediaDotCom/opentracing-spring-haystack-starter)
+[![Build Status](https://travis-ci.org/ExpediaDotCom/spring-cloud-sleuth-haystack-reporter.svg?branch=master)](https://travis-ci.org/ExpediaDotCom/spring-cloud-sleuth-haystack-reporter)
 [![License](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg)](https://github.com/ExpediaDotCom/haystack/blob/master/LICENSE)
 
 Table of Contents
 =================
 
 * [Table of Contents](#table-of-contents)
-   * [Instrumenting Spring Boot or Spring Web applications](#instrumenting-spring-boot-or-spring-web-applications)
+   * [Configuring spring sleuth applications to report to haystack](#configuring-spring-sleuth-applications-to-report-to-haystack)
    * [Quick Start](#quick-start)
-      * [Spring Boot or Spring Web dependency](#spring-boot-or-spring-web-dependency)
-      * [Spring Application dependency](#spring-application-dependency)
+      * [Spring Sleuth dependency](#spring-sleuth-dependency)
+      * [Spring Sleuth Haystack dependency](#spring-sleuth-haystack-dependency)
       * [Other dependencies](#other-dependencies)
       * [Sample yaml/properties file](#sample-yamlproperties-file)
       * [Example Project](#example-project)
@@ -16,104 +16,74 @@ Table of Contents
       * [Using this library](#using-this-library)
       * [Defaults](#defaults)
       * [Configuration](#configuration)
-         * [Disabling Tracer](#disabling-tracer)
-         * [Dispatcher(s)](#dispatchers)
-            * [Logger Dispatcher](#logger-dispatcher)
-            * [Grpc Agent Dispatcher](#grpc-agent-dispatcher)
-            * [Http Dispatcher](#http-dispatcher)
-            * [Dispatcher Bean](#dispatcher-bean)
-         * [Metrics](#metrics)
-         * [Customizing Tracer](#customizing-tracer)
+         * [Disabling Tracing](#disabling-tracing)
+         * [Grpc Client](#grpc-client)
+         * [Customizing Sleuth](#customizing-sleuth)
 
 
 ## Instrumenting Spring Boot or Spring Web applications
 
-One can use [opentracing-spring-haystack-web-starter](opentracing-spring-haystack-web-starter) or [opentracing-spring-haystack-cloud-starter](opentracing-spring-haystack-cloud-starter) to instrument spring boot or spring web applications and send tracing information to Opentracing complicant [Haystack](https://expediadotcom.github.io/haystack/) server, distributed tracing platform. 
+One can use [spring-cloud-sleuth-haystack-reporter](spring-cloud-sleuth-haystack-reporter) to configure spring sleuth applications to send tracing information to Opentracing complicant [Haystack](https://expediadotcom.github.io/haystack/) server, distributed tracing platform. 
 
-These libraries in turn use [opentracing-spring-haystack-starter](opentracing-spring-haystack-starter) which helps build the 
-`io.opentracing.Tracer` instance required by underlying [io.opentracing.contrib : opentracing-spring-web-starter](https://github.com/opentracing-contrib/java-spring-web). 
+This library in turn uses [ospring-cloud-starter-sleuth](spring-cloud-starter-sleuth) which helps build the 
+`brave.Tracer` instance required to trace the application. This tracer creates a brave.span which in turn gets converted to zipkin2.span to be used by this library to report to haystack.
 
 ## Quick Start
 
-This section provides steps required to quickly configure your spring application to be wired using Opentracing's spring integration to Haystack. If you need additional information, please read the subsequent sections in this documentation
+This section provides steps required to quickly configure your spring application to be wired using Spring sleuth's integration to Haystack. If you need additional information, please read the subsequent sections in this documentation
 
-### Spring Boot or Spring Web dependency
+### Spring Sleuth dependency
 
-Add the following dependency to your application
+Add the following dependency to your application to get an instance of `brave.Tracer`. This allows spans to be mostly automatically created inside the application.
+
+```xml
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-sleuth</artifactId>
+    <version>${spring-sleuth.version}</version>
+</dependency>
+```
+
+### Spring Sleuth Haystack dependency
+
+To allow the spans to be reported to haystack
 
 ```xml
 <dependency>
     <groupId>com.expedia.www</groupId>
-    <artifactId>opentracing-spring-haystack-web-starter</artifactId>
-    <version>${opentracing-spring-haystack-web-starter.version}</version>
-</dependency>
-```
-
-Alternately, one can use `opentracing-spring-haystack-cloud-starter` instead. It is convenience starter that includes opentracing-spring-haystack-starter, opentracing-spring-web-starter and opentracing-spring-cloud-starter. This allows one to take advantage of opentracing instrumentation provided for Spring Cloud.
-
-```xml
-<dependency>
-    <groupId>com.expedia.www</groupId>
-    <artifactId>opentracing-spring-haystack-cloud-starter</artifactId>
-    <version>${opentracing-spring-haystack-cloud-starter.version}</version>
-</dependency>
-```
-
-[opentracing-spring-cloud-starter](https://github.com/opentracing-contrib/java-spring-cloud#opentracing-spring-cloud) provides ready instrumentation of various known OSS projects like Redis, Hystrix etc.,
-
-### Spring Application dependency
-
-To access an instance of `opentracing.io.Tracer` to instrument a Spring application, one can add the following dependencies
-
-```xml
-<dependency>
-    <groupId>com.expedia.www</groupId>
-    <artifactId>opentracing-spring-haystack-starter</artifactId>
-    <version>${opentracing-spring-haystack-starter.version}</version>
-</dependency>
-```
-
-Enable `@ComponentScan` on the package `com.expedia.haystack.opentracing.spring.starter` to configure the `Tracer` bean
-
-### Other dependencies
-
-Optionally, add the following to get metrics recorded in JMX
-
-```xml
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-actuator</artifactId>
-</dependency>
-<dependency>
-    <groupId>io.micrometer</groupId>
-    <artifactId>micrometer-registry-jmx</artifactId>
-    <version>${io-micrometer.version}</version>
+    <artifactId>spring-cloud-sleuth-haystack-reporter</artifactId>
+    <version>${spring.cloud.sleuth.haystack.reporter.version}</version>
 </dependency>
 ```
 
 ### Sample yaml/properties file
 
-Add the following to the properties or yaml file of the application being instrumented  (this is just a sample. change the name of the application, host name/port of the agent etc)
+Add the following to the properties or yaml file of the application being instrumented  (this is just a sample. change the name of the application, host name/port of the client etc)
 
 ```yaml
+server:
+  port: 3379
+
 spring:
   application:
-    name: springbootsample
-    
-opentracing:
-  haystack:
-    dispatchers:
-      logger:
-        name: span-logger
-      agent:
-        enabled: true
-        host: haystack-agent
-        port: 34000
+    name: spring-sleuth-haystack
+  sleuth:
+    enabled: true
+    haystack:
+      enabled: true
+      client:
+        grpc:
+          host: localhost
+          port: 34000
+    sampler:
+      probability: 1.0
+
+logging.level.org.springframework.web: info
 ```
 
 ### Example Project
 
-One can checkout the example project using this integration @ [https://github.com/ExpediaDotCom/opentracing-spring-haystack-example](https://github.com/ExpediaDotCom/opentracing-spring-haystack-example) 
+One can checkout the example project using this integration @ [https://github.com/ExpediaDotCom/spring-cloud-sleuth-haystack-reporter-example](https://github.com/ExpediaDotCom/spring-cloud-sleuth-haystack-reporter-example) 
 
 ## Details
 
@@ -124,139 +94,66 @@ Check maven for latest versions of this library. At present, this library has be
 ```xml
 <dependency>
     <groupId>com.expedia.www</groupId>
-    <artifactId>opentracing-spring-haystack-web-starter</artifactId>
-    <version>${opentracing-spring-haystack-web-starter.version}</version>
+    <artifactId>spring-cloud-sleuth-haystack-reporter</artifactId>
+    <version>${spring.cloud.sleuth.haystack.reporter.version}</version>
 </dependency>
 ```
 
 ### Defaults
 
-Adding this library autoconfigures an instance of [Haystack Tracer](https://github.com/ExpediaDotCom/haystack-client-java/blob/opentracing-spring-haystack-starter/core/src/main/java/com/expedia/www/haystack/client/Tracer.java) using defaults mentioned below. 
-
-* `service-name`: Is read from configuration property `spring.application.name`. If it is not provided then the value will be set to `unnamed-application`
-* `dispatcher`: Spans are dispatched to Haystack using one or more [Dispatcher](https://github.com/ExpediaDotCom/haystack-client-java/blob/opentracing-spring-haystack-starter/core/src/main/java/com/expedia/www/haystack/client/dispatchers/Dispatcher.java) instances. If none is configured or created, then a [LoggerDispatcher](https://github.com/ExpediaDotCom/haystack-client-java/blob/opentracing-spring-haystack-starter/core/src/main/java/com/expedia/www/haystack/client/dispatchers/LoggerDispatcher.java) is configured with "haystack" as the logger name
-* `metrics`: This library depends on Micrometer's MeterRegistry to instrument the library itself. If no instance of `MeterRegistry` is present in the [spring application](https://spring.io/blog/2018/03/16/micrometer-spring-boot-2-s-new-application-metrics-collector#what-do-i-get-out-of-the-box), then it uses a built-in No-op implementation. Which means no metrics are recorded
+Adding this library auto configures an instance of [HaystackReporter](https://github.com/ExpediaDotCom/spring-cloud-sleuth-haystack-reporter), which is responsible for converting the zipkin2.Span to Haystack Proto Span,
+and makes sure appropriate tags are applied on the spans such as client and server.
 
 ### Configuration
 
-One can also configure the tracer created by the library using few configuration properties and optional beans.
+One can also configure the reporter created by the library using few configuration properties.
 
-#### Disabling Tracer
+#### Disabling Tracing
 
-One can completely disable tracing with configuration property `opentracing.haystack.enabled`. If the property is missing (default), this property value is assumed as `true`.
-
-```yaml
-opentracing:
-  haystack:
-    enabled: false
-```
-
-#### Dispatcher(s)
-
-One can configure `Dispatcher` in two ways: using configuration properties or by creating a spring bean.
-
-Using configuration properties one can configure one or more of the following dispatchers. Configuring more than one dispatcher, creates a `ChainedDispatcher` and sends a span to all of the configured dispatcher instances.
-
-##### Logger Dispatcher
-
-One can configure the name of the logger to use in a LoggerDispatcher by setting the following property in Spring Boot yaml or properties file
+One can completely disable tracing with configuration property `spring.sleuth.haystack.enabled`. If the property is missing (default), this property value is assumed as `true`.
 
 ```yaml
-opentracing:
-  haystack:
-    dispatchers:
-      logger:
-        name: span-logger
+spring:
+  sleuth:
+    haystack:
+      enabled: false
 ```
 
-##### Grpc Agent Dispatcher
+#### Grpc Client
 
-Haystack provides a [GRPC agent](https://github.com/ExpediaDotCom/haystack-agent) as a convenience to send protobuf spans to Haystack's kafka. One can configure grpc agent by simply enabling it in the configuration. 
+Haystack Reporter provides a [GRPC client](https://github.com/ExpediaDotCom/haystack-agent) this can be configured with host and port as below. 
 
 ```yaml
-opentracing:
-  haystack:
-    dispatchers:
-      agent:
-        enabled: true
+spring:
+  application:
+    name: spring-sleuth-haystack
+  sleuth: 
+    enabled: true
+    haystack:
+      enabled: true
+      client:
+        grpc:
+          host: localhost
+          port: 34000
 ```
 
-There are other properties available to further configure the grpc agent dispatcher
+#### Customizing Sleuth
 
-```properties
-opentracing.haystack.dispatchers.agent.host=haystack-agent
-opentracing.haystack.dispatchers.agent.port=34000
-opentracing.haystack.dispatchers.agent.keep-alive-time-m-s=30
-opentracing.haystack.dispatchers.agent.keep-alive-timeout-m-s=30
-opentracing.haystack.dispatchers.agent.keep-alive-without-calls=true
-opentracing.haystack.dispatchers.agent.negotiation-type=PLAINTEXT
-```
-
-Alternately, one can create a bean of type [GrpcDispatcherFactory](https://github.com/ExpediaDotCom/haystack-client-java/blob/opentracing-spring-haystack-starter/integrations/opentracing-spring-haystack-starter/src/main/java/com/expedia/haystack/opentracing/spring/starter/support/GrpcDispatcherFactory.java). 
-
-```java
-public interface GrpcDispatcherFactory {
-    Dispatcher create(MetricsRegistry metricsRegistry, 
-                      TracerSettings.AgentConfiguration agentConfiguration);
-}
-```
-
-If available, this bean will be invoked with configuration properties defined to build a RemoteDispatcher with GrpcAgentClient.
-
-```java
-@Bean
-public GrpcDispatcherFactory grpcDispatcherFactory() {
-    return (metricsRegistry, config) ->
-            new RemoteDispatcher.Builder(metricsRegistry, 
-                                         config.builder(metricsRegistry).build()).build();
-}
-```
-
-##### Http Dispatcher
-
-Haystack also provides a [http collector](https://github.com/ExpediaDotCom/haystack-collector/tree/master/http) to ingest Json and Protobuf serialized spans over http.
-
-One can configure a http dispatcher by adding the following endpoint configuration
+Sleuth can be customised using properties as shown below. For more configuration options please refer [Spring Sleuth](https://github.com/spring-cloud/spring-cloud-sleuth).
 
 ```yaml
-opentracing:
-  haystack:
-    dispatchers:
-      http:
-        endpoint: http://localhost:8080/span
-        headers: 
-          client-id: foo
-          client-key: bar
+spring:
+  application:
+    name: spring-sleuth-haystack
+  sleuth:
+    sampler:
+      probability: 1.0
+    enabled: true
+    haystack:
+      enabled: true
+      client:
+        grpc:
+          host: localhost
+          port: 34000
 ```
 
-`headers` property is optional. All properties defined under 'headers' will be sent as HTTP headers along with the serialized span data. 
-
-As in Grpc Agent, one can create a bean of type [HttpDispatcherFactory](https://github.com/ExpediaDotCom/haystack-client-java/blob/opentracing-spring-haystack-starter/integrations/opentracing-spring-haystack-starter/src/main/java/com/expedia/haystack/opentracing/spring/starter/support/GrpcDispatcherFactory.java). If available, that bean will be invoked to create a RemoteDispatcher with HttpClient
-
-##### Dispatcher Bean
-
-Instead of configuring dispatchers through properties, one can create a bean of type `Dispatcher` in the application's spring context. This library will use that bean instead of creating one using configuration or defaults. One can see this in the [integration test example](opentracing-spring-haystack-web-starter/src/test/java/com/expedia/haystack/opentracing/spring/starter/DispatcherInjectionIntegrationTest.java#L57).
-
-#### Metrics
-
-As mentioned earlier, this library looks for a bean of type [Micrometer's MeterRegistry](https://micromerter.io). If present, it uses that to write all metrics from the library to the configured store. If not, the library will use a no-op implementation and no metrics will be written.
-
-For example, adding the following two dependencies to the application will automatically create a `MeterRegistry` bean and write the metrics to JMX
-
-```xml
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-actuator</artifactId>
-</dependency>
-<dependency>
-    <groupId>io.micrometer</groupId>
-    <artifactId>micrometer-registry-jmx</artifactId>
-    <version>${io-micrometer.version}</version>
-</dependency>
-```
-
-#### Customizing Tracer
-
-Haystack Tracer's [Builder](https://github.com/ExpediaDotCom/haystack-client-java/blob/master/core/src/main/java/com/expedia/www/haystack/client/Tracer.java#L356) class exposes a number of possible configurations that can be used to customize the `Tracer` instance built by this library and used by [Opentracing's Spring integration](https://github.com/opentracing-contrib/java-spring-web/). To customize the Tracer instance, one can create a bean of type [TracerCustomizer](opentracing-spring-haystack-starter/src/main/java/com/expedia/haystack/opentracing/spring/starter/support/TracerCustomizer.java). This will be invoked when the library attempts to build an instance of Tracer. One can see this in the [integration test](opentracing-spring-haystack-web-starter/src/test/java/com/expedia/haystack/opentracing/spring/starter/TracerCustomizerIntegrationTest.java#L29).
-
-=======
