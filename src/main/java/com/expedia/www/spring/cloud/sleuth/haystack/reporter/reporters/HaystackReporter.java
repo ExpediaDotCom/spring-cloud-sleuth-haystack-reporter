@@ -72,53 +72,64 @@ public class HaystackReporter implements Reporter<Span> {
                 .map(p -> buildLog(p.timestamp(), p.value()))
                 .collect(Collectors.toList());
 
-        switch (span.kind()) {
-            case CLIENT:
-                if (span.timestampAsLong() != 0L) {
-                    logList.add(buildLog(span.timestamp(), "event", "cs"));
-                }
+        if (span.kind() == null) {
+            logger.debug("No span kind found in span so we will treat this as clients span", span);
+            if (span.timestampAsLong() != 0L) {
+                logList.add(buildLog(span.timestamp(), "event", "cs"));
+            }
 
-                if (span.durationAsLong() != 0L) {
-                    logList.add(buildLog(span.timestamp() + span.duration(), "event", "cr"));
-                }
-                break;
-            case SERVER:
-                if (span.timestampAsLong() != 0L) {
-                    logList.add(buildLog(span.timestamp(), "event", "sr"));
-                }
+            if (span.durationAsLong() != 0L) {
+                logList.add(buildLog(span.timestamp() + span.duration(), "event", "cr"));
+            }
+        } else {
+            switch (span.kind()) {
+                case CLIENT:
+                    if (span.timestampAsLong() != 0L) {
+                        logList.add(buildLog(span.timestamp(), "event", "cs"));
+                    }
 
-                if (span.durationAsLong() != 0L) {
-                    logList.add(buildLog(span.timestamp() + span.duration(), "event", "ss"));
-                }
-                break;
-            case PRODUCER:
-                if (span.timestampAsLong() != 0L) {
-                    logList.add(buildLog(span.timestamp(), "event", "ms"));
-                }
+                    if (span.durationAsLong() != 0L) {
+                        logList.add(buildLog(span.timestamp() + span.duration(), "event", "cr"));
+                    }
+                    break;
+                case SERVER:
+                    if (span.timestampAsLong() != 0L) {
+                        logList.add(buildLog(span.timestamp(), "event", "sr"));
+                    }
 
-                if (span.durationAsLong() != 0L) {
-                    logList.add(buildLog(span.timestamp() + span.duration(), "event", "ws"));
-                }
-                break;
-            case CONSUMER:
-                if (span.timestampAsLong() != 0L) {
-                    logList.add(buildLog(span.timestamp(), "event", "ms"));
-                }
+                    if (span.durationAsLong() != 0L) {
+                        logList.add(buildLog(span.timestamp() + span.duration(), "event", "ss"));
+                    }
+                    break;
+                case PRODUCER:
+                    if (span.timestampAsLong() != 0L) {
+                        logList.add(buildLog(span.timestamp(), "event", "ms"));
+                    }
 
-                if (span.durationAsLong() != 0L) {
-                    logList.add(buildLog(span.timestamp() + span.duration(), "event", "mr"));
-                }
-                break;
-            default:
-                logger.debug("No span kind found in span so we will treat this as clients span", span);
-                if (span.timestampAsLong() != 0L) {
-                    logList.add(buildLog(span.timestamp(), "event", "cs"));
-                }
+                    if (span.durationAsLong() != 0L) {
+                        logList.add(buildLog(span.timestamp() + span.duration(), "event", "ws"));
+                    }
+                    break;
+                case CONSUMER:
+                    if (span.timestampAsLong() != 0L) {
+                        logList.add(buildLog(span.timestamp(), "event", "ms"));
+                    }
 
-                if (span.durationAsLong() != 0L) {
-                    logList.add(buildLog(span.timestamp() + span.duration(), "event", "cr"));
-                }
-                break;
+                    if (span.durationAsLong() != 0L) {
+                        logList.add(buildLog(span.timestamp() + span.duration(), "event", "mr"));
+                    }
+                    break;
+                default:
+                    logger.debug("No span kind found in span so we will treat this as clients span", span);
+                    if (span.timestampAsLong() != 0L) {
+                        logList.add(buildLog(span.timestamp(), "event", "cs"));
+                    }
+
+                    if (span.durationAsLong() != 0L) {
+                        logList.add(buildLog(span.timestamp() + span.duration(), "event", "cr"));
+                    }
+                    break;
+            }
         }
 
         return logList;
