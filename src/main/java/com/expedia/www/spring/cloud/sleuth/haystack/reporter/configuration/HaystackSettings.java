@@ -41,6 +41,11 @@ public class HaystackSettings {
     
     public static class ClientConfiguration {
         private GrpcConfiguration grpc;
+        private HttpConfiguration http;
+
+        public HttpConfiguration getHttp() { return http; }
+
+        public void setHttp(HttpConfiguration http) { this.http = http; }
 
         public GrpcConfiguration getGrpc() {
             return grpc;
@@ -70,5 +75,14 @@ public class HaystackSettings {
         public void setPort(int port) {
             this.port = port;
         }
+    }
+
+    public static class HttpConfiguration {
+
+        private String endpoint = "http://localhost:80/span";
+
+        public String getEndpoint() { return endpoint; }
+
+        public void setEndpoint(String endpoint) { this.endpoint = endpoint; }
     }
 }
