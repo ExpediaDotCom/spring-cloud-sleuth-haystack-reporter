@@ -78,10 +78,11 @@ public class HaystackReporterAutoConfiguration {
 
         if (settings.getClient().getHttp() != null) {
 
-            final Map<String, String> headers = new HashMap<>();
-            headers.put("client-id", serviceName);
+            final Map<String, String> headers = new HashMap<String, String>(){{
+                settings.getClient().getHttp().getHeaders().forEach(t -> put(t.get("key"), t.get("value")));
+            }};
 
-            clients.add(new HttpCollectorProtoClient(settings.getClient().getHttp().getEndpoint(), headers));
+           clients.add(new HttpCollectorProtoClient(settings.getClient().getHttp().getEndpoint(), headers));
         }
 
         return clients;

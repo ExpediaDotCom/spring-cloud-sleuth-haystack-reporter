@@ -152,6 +152,9 @@ spring:
       client:
         http:
           endpoint: http://localhost:80/span
+          headers: 
+            - key: client-id
+              value: ${spring.application.name:unknown}          
 ```
 
 
@@ -174,6 +177,9 @@ spring:
           host: localhost
           port: 34000
         http:
-          endpoint: http://localhost:80/span          
+          endpoint: http://localhost:80/span
+          headers: 
+            - key: client-id
+              value: ${spring.application.name:unknown}             
 ```
 
