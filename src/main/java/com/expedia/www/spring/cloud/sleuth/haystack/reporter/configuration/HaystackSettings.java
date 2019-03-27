@@ -16,6 +16,11 @@
  */
 package com.expedia.www.spring.cloud.sleuth.haystack.reporter.configuration;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties("spring.sleuth.haystack")
@@ -41,6 +46,11 @@ public class HaystackSettings {
     
     public static class ClientConfiguration {
         private GrpcConfiguration grpc;
+        private HttpConfiguration http;
+
+        public HttpConfiguration getHttp() { return http; }
+
+        public void setHttp(HttpConfiguration http) { this.http = http; }
 
         public GrpcConfiguration getGrpc() {
             return grpc;
@@ -70,5 +80,24 @@ public class HaystackSettings {
         public void setPort(int port) {
             this.port = port;
         }
+    }
+
+    public static class HttpConfiguration {
+
+        private String endpoint = "http://localhost:80/span";
+
+        private List<Map<String, String>> headers = new ArrayList<>();
+
+        public List<Map<String, String>> getHeaders() {
+            return headers;
+        }
+
+        public void setHeaders(List<Map<String, String>> headers) {
+            this.headers = headers;
+        }
+
+        public String getEndpoint() { return endpoint; }
+
+        public void setEndpoint(String endpoint) { this.endpoint = endpoint; }
     }
 }

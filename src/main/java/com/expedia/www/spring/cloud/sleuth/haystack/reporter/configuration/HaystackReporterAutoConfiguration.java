@@ -18,11 +18,15 @@ package com.expedia.www.spring.cloud.sleuth.haystack.reporter.configuration;
 
 import com.expedia.www.haystack.client.dispatchers.clients.Client;
 import com.expedia.www.haystack.client.dispatchers.clients.GRPCAgentProtoClient;
+import com.expedia.www.haystack.client.dispatchers.clients.HttpCollectorClient;
+import com.expedia.www.haystack.client.dispatchers.clients.HttpCollectorProtoClient;
 import com.expedia.www.haystack.client.metrics.MetricsRegistry;
 import com.expedia.www.haystack.client.metrics.NoopMetricsRegistry;
 import com.expedia.www.haystack.client.metrics.micrometer.MicrometerMetricsRegistry;
 import com.expedia.www.spring.cloud.sleuth.haystack.reporter.reporters.HaystackReporter;
 import io.micrometer.core.instrument.MeterRegistry;
+import java.util.HashMap;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
@@ -70,6 +74,15 @@ public class HaystackReporterAutoConfiguration {
                     .Builder(metricsRegistry,
                     settings.getClient().getGrpc().getHost(),
                     settings.getClient().getGrpc().getPort()).build());
+        }
+
+        if (settings.getClient().getHttp() != null) {
+
+            final Map<String, String> headers = new HashMap<String, String>(){{
+                settings.getClient().getHttp().getHeaders().forEach(t -> put(t.get("key"), t.get("value")));
+            }};
+
+           clients.add(new HttpCollectorProtoClient(settings.getClient().getHttp().getEndpoint(), headers));
         }
 
         return clients;
