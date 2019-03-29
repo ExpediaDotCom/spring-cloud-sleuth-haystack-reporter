@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static zipkin2.Span.Kind.CLIENT;
+import static zipkin2.Span.Kind.*;
 
 public class HaystackReporter implements Reporter<Span> {
 
@@ -72,55 +72,6 @@ public class HaystackReporter implements Reporter<Span> {
                 .map(p -> buildLog(p.timestamp(), p.value()))
                 .collect(Collectors.toList());
 
-        switch (span.kind()) {
-            case CLIENT:
-                if (span.timestampAsLong() != 0L) {
-                    logList.add(buildLog(span.timestamp(), "event", "cs"));
-                }
-
-                if (span.durationAsLong() != 0L) {
-                    logList.add(buildLog(span.timestamp() + span.duration(), "event", "cr"));
-                }
-                break;
-            case SERVER:
-                if (span.timestampAsLong() != 0L) {
-                    logList.add(buildLog(span.timestamp(), "event", "sr"));
-                }
-
-                if (span.durationAsLong() != 0L) {
-                    logList.add(buildLog(span.timestamp() + span.duration(), "event", "ss"));
-                }
-                break;
-            case PRODUCER:
-                if (span.timestampAsLong() != 0L) {
-                    logList.add(buildLog(span.timestamp(), "event", "ms"));
-                }
-
-                if (span.durationAsLong() != 0L) {
-                    logList.add(buildLog(span.timestamp() + span.duration(), "event", "ws"));
-                }
-                break;
-            case CONSUMER:
-                if (span.timestampAsLong() != 0L) {
-                    logList.add(buildLog(span.timestamp(), "event", "ms"));
-                }
-
-                if (span.durationAsLong() != 0L) {
-                    logList.add(buildLog(span.timestamp() + span.duration(), "event", "mr"));
-                }
-                break;
-            default:
-                logger.debug("No span kind found in span so we will treat this as clients span", span);
-                if (span.timestampAsLong() != 0L) {
-                    logList.add(buildLog(span.timestamp(), "event", "cs"));
-                }
-
-                if (span.durationAsLong() != 0L) {
-                    logList.add(buildLog(span.timestamp() + span.duration(), "event", "cr"));
-                }
-                break;
-        }
-
         return logList;
     }
 
@@ -158,10 +109,10 @@ public class HaystackReporter implements Reporter<Span> {
             tagList.add(buildTag("remoteEndpoint", span.remoteEndpoint().toString()));
         }
 
-        if (CLIENT.equals(span.kind())) {
-            tagList.add(buildTag("kind", "client"));
-        } else {
-            tagList.add(buildTag("kind", "server"));
+        if (CLIENT.equals(span.kind()) || PRODUCER.equals(span.kind())) {
+            tagList.add(buildTag("span.kind", "client"));
+        } else if (SERVER.equals(span.kind()) || CONSUMER.equals(span.kind())){
+            tagList.add(buildTag("span.kind", "server"));
         }
 
         return tagList;
