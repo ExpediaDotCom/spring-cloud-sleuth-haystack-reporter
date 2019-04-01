@@ -137,6 +137,27 @@ spring:
           port: 34000
 ```
 
+#### Http Client
+
+Haystack Reporter provides a [Http client](https://github.com/ExpediaDotCom/haystack-client-java) this can be configured with host and port as below. 
+
+```yaml
+spring:
+  application:
+    name: spring-sleuth-haystack
+  sleuth: 
+    enabled: true
+    haystack:
+      enabled: true
+      client:
+        http:
+          endpoint: http://localhost:80/span
+          headers: 
+            - key: client-id
+              value: ${spring.application.name:unknown}          
+```
+
+
 #### Customizing Sleuth
 
 Sleuth can be customised using properties as shown below. For more configuration options please refer [Spring Sleuth](https://github.com/spring-cloud/spring-cloud-sleuth).
@@ -155,5 +176,10 @@ spring:
         grpc:
           host: localhost
           port: 34000
+        http:
+          endpoint: http://localhost:80/span
+          headers: 
+            - key: client-id
+              value: ${spring.application.name:unknown}             
 ```
 
