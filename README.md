@@ -18,6 +18,7 @@ Table of Contents
       * [Configuration](#configuration)
          * [Disabling Tracing](#disabling-tracing)
          * [Grpc Client](#grpc-client)
+         * [Http Client](#http-client)
          * [Customizing Sleuth](#customizing-sleuth)
 
 
