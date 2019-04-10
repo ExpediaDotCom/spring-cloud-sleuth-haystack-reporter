@@ -38,7 +38,7 @@
   </licenses>
 
   <properties>
-    <haystack-core.version>0.2.5</haystack-core.version>
+    <haystack-client.version>0.2.7</haystack-client.version>
     <io-micrometer.version>1.1.1</io-micrometer.version>
     <spring-sleuth.version>2.1.0.RELEASE</spring-sleuth.version>
     <java-version>1.8</java-version>
@@ -56,14 +56,14 @@
     <dependencies>
       <dependency>
         <groupId>com.expedia.www</groupId>
-        <artifactId>haystack-client-core</artifactId>
-        <version>${haystack-core.version}</version>
+        <artifactId>haystack-remote-clients</artifactId>
+        <version>${haystack-client.version}</version>
       </dependency>
 
       <dependency>
         <groupId>com.expedia.www</groupId>
         <artifactId>haystack-client-micrometer</artifactId>
-        <version>${haystack-core.version}</version>
+        <version>${haystack-client.version}</version>
       </dependency>
 
       <dependency>
@@ -89,7 +89,7 @@
   <dependencies>
     <dependency>
       <groupId>com.expedia.www</groupId>
-      <artifactId>haystack-client-core</artifactId>
+      <artifactId>haystack-remote-clients</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.cloud</groupId>

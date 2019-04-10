@@ -19,7 +19,7 @@ package com.expedia.www.spring.cloud.sleuth.haystack.reporter.reporters;
 import brave.internal.HexCodec;
 import com.expedia.open.tracing.Log;
 import com.expedia.open.tracing.Tag;
-import com.expedia.www.haystack.client.dispatchers.clients.Client;
+import com.expedia.www.haystack.remote.clients.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
