@@ -16,13 +16,12 @@
  */
 package com.expedia.www.spring.cloud.sleuth.haystack.reporter.configuration;
 
-import com.expedia.www.haystack.client.dispatchers.clients.Client;
-import com.expedia.www.haystack.client.dispatchers.clients.GRPCAgentProtoClient;
-import com.expedia.www.haystack.client.dispatchers.clients.HttpCollectorClient;
-import com.expedia.www.haystack.client.dispatchers.clients.HttpCollectorProtoClient;
 import com.expedia.www.haystack.client.metrics.MetricsRegistry;
 import com.expedia.www.haystack.client.metrics.NoopMetricsRegistry;
 import com.expedia.www.haystack.client.metrics.micrometer.MicrometerMetricsRegistry;
+import com.expedia.www.haystack.remote.clients.Client;
+import com.expedia.www.haystack.remote.clients.GRPCAgentProtoClient;
+import com.expedia.www.haystack.remote.clients.HttpCollectorProtoClient;
 import com.expedia.www.spring.cloud.sleuth.haystack.reporter.reporters.HaystackReporter;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.util.HashMap;
