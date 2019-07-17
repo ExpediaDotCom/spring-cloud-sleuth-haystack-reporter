@@ -22,6 +22,9 @@ import com.expedia.www.haystack.client.metrics.micrometer.MicrometerMetricsRegis
 import com.expedia.www.haystack.remote.clients.Client;
 import com.expedia.www.haystack.remote.clients.GRPCAgentProtoClient;
 import com.expedia.www.haystack.remote.clients.HttpCollectorProtoClient;
+import com.expedia.www.spring.cloud.sleuth.haystack.reporter.idextractors.IdExtractor;
+import com.expedia.www.spring.cloud.sleuth.haystack.reporter.idextractors.StringIdExtractor;
+import com.expedia.www.spring.cloud.sleuth.haystack.reporter.idextractors.UUIDIdExtractor;
 import com.expedia.www.spring.cloud.sleuth.haystack.reporter.reporters.HaystackReporter;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.util.HashMap;
@@ -58,8 +61,8 @@ public class HaystackReporterAutoConfiguration {
     }
 
     @Bean
-    public HaystackReporter spanReporter(String serviceName, List<Client> clients) {
-        return new HaystackReporter(serviceName, clients);
+    public HaystackReporter spanReporter(String serviceName, List<Client> clients, IdExtractor idExtractor) {
+        return new HaystackReporter(serviceName, clients, idExtractor);
     }
 
     @Bean
@@ -85,6 +88,16 @@ public class HaystackReporterAutoConfiguration {
         }
 
         return clients;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public IdExtractor idExtractor(HaystackSettings settings) {
+        if (settings.getIdFormat().equalsIgnoreCase("UUID")) {
+            return new UUIDIdExtractor();
+        } else {
+            return new StringIdExtractor();
+        }
     }
 
     @Bean
