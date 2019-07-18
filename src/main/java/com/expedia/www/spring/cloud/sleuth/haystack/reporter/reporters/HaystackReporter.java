@@ -16,10 +16,11 @@
  */
 package com.expedia.www.spring.cloud.sleuth.haystack.reporter.reporters;
 
-import brave.internal.HexCodec;
 import com.expedia.open.tracing.Log;
 import com.expedia.open.tracing.Tag;
 import com.expedia.www.haystack.remote.clients.Client;
+import com.expedia.www.spring.cloud.sleuth.haystack.reporter.idextractors.IdExtractor;
+import com.expedia.www.spring.cloud.sleuth.haystack.reporter.idextractors.UUIDIdExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,6 @@ import zipkin2.Span;
 import zipkin2.reporter.Reporter;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static zipkin2.Span.Kind.*;
@@ -41,9 +41,16 @@ public class HaystackReporter implements Reporter<Span> {
 
     private final String serviceName;
 
+    private final IdExtractor idExtractor;
+
     public HaystackReporter(String serviceName, List<Client> clients) {
+        this(serviceName, clients, new UUIDIdExtractor());
+    }
+
+    public HaystackReporter(String serviceName, List<Client> clients, IdExtractor idExtractor) {
         this.clients = clients;
         this.serviceName = serviceName;
+        this.idExtractor = idExtractor;
     }
 
     @Override
@@ -56,9 +63,9 @@ public class HaystackReporter implements Reporter<Span> {
         final com.expedia.open.tracing.Span.Builder builder = com.expedia.open.tracing.Span.newBuilder()
                 .setServiceName(serviceName)
                 .setOperationName(getSpanName(span))
-                .setTraceId(getTraceId(span))
-                .setSpanId(getSpanId(span))
-                .setParentSpanId(getParentSpanId(span))
+                .setTraceId(idExtractor.getTraceId(span).toString())
+                .setSpanId(idExtractor.getSpanId(span).toString())
+                .setParentSpanId(idExtractor.getParentSpanId(span).toString())
                 .setStartTime(span.timestampAsLong())
                 .setDuration(span.durationAsLong())
                 .addAllTags(getTags(span))
@@ -134,25 +141,6 @@ public class HaystackReporter implements Reporter<Span> {
 
     private boolean filterTags(String key) {
         return !("REQUEST".equals(key) || "RESPONSE".equals(key));
-    }
-
-    private String getTraceId(Span span) {
-        final Long lowTraceId = HexCodec.lowerHexToUnsignedLong(span.traceId());
-        final Long highTraceId = span.traceId().length() == 32 ? HexCodec.lowerHexToUnsignedLong(span.traceId(), 0) : 0;
-
-        final UUID traceId = new UUID(highTraceId, lowTraceId);
-        return traceId.toString();
-    }
-
-    private String getSpanId(Span span) {
-        return new UUID(0, HexCodec.lowerHexToUnsignedLong(span.id())).toString();
-    }
-
-    private String getParentSpanId(Span span) {
-        if (span.parentId() == null) {
-            return "";
-        }
-        return new UUID(0, HexCodec.lowerHexToUnsignedLong(span.parentId())).toString();
     }
 
     private String getSpanName(Span span) {

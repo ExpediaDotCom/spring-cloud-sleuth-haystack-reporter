@@ -26,6 +26,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("spring.sleuth.haystack")
 public class HaystackSettings {
     private boolean enabled = true;
+    private String idFormat = "string";
+
     private ClientConfiguration client = new ClientConfiguration();
 
     public ClientConfiguration getClient() {
@@ -42,6 +44,14 @@ public class HaystackSettings {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public String getIdFormat() {
+        return idFormat;
+    }
+
+    public void setIdFormat(String idFormat) {
+        this.idFormat = idFormat;
     }
     
     public static class ClientConfiguration {
