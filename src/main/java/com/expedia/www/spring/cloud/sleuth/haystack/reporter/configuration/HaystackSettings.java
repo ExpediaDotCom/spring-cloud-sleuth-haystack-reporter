@@ -26,7 +26,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("spring.sleuth.haystack")
 public class HaystackSettings {
     private boolean enabled = true;
-    private String idFormat = "UUID";
+    private String idFormat = "string";
 
     private ClientConfiguration client = new ClientConfiguration();
 

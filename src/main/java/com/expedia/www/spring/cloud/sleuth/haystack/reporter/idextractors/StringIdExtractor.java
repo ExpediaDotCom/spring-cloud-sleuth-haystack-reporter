@@ -16,6 +16,9 @@ public class StringIdExtractor implements IdExtractor {
 
     @Override
     public String getParentSpanId(Span span) {
+        if (span.parentId() == null) {
+            return "";
+        }
         return span.parentId();
     }
 }
