@@ -82,15 +82,6 @@ public class HaystackReporter implements Reporter<Span> {
         return logList;
     }
 
-    private Log buildLog(Long timestamp, String key, String value) {
-        final Log.Builder logBuilder = Log.newBuilder();
-
-        logBuilder.setTimestamp(timestamp);
-        logBuilder.addFields(buildTag(key, value));
-
-        return logBuilder.build();
-    }
-
     private Log buildLog(Long timestamp, String value) {
         final Log.Builder logBuilder = Log.newBuilder();
 
